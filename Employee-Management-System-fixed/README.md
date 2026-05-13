@@ -6,7 +6,7 @@
 ## 🗂️ Project Structure
 
 ```
-EmployeeManagementSystem/
+Employee-Management-System/
 ├── src/
 │   ├── Main.java                  ← Entry point
 │   ├── model/
@@ -20,12 +20,14 @@ EmployeeManagementSystem/
 │   └── util/
 │       ├── DBConnection.java      ← Singleton JDBC connection
 │       └── DBInitializer.java     ← Table creation + sample data
-├── lib/
-│   ├── mysql-connector-j-9.7.0.jar
-│   ├── slf4j-api-1.7.32.jar
-│   └── slf4j-nop-1.7.32.jar
+├── mysql-connector-j-9.7.0.jar    ← MySQL JDBC driver
+├── slf4j-api-1.7.32.jar
+├── slf4j-nop-1.7.32.jar
 ├── run.sh                         ← Linux/Mac build & run
 ├── run.bat                        ← Windows build & run
+├── .classpath                     ← Eclipse classpath config
+├── .project                       ← Eclipse project config
+├── Employee-Management-System.iml ← IntelliJ module config
 └── README.md
 ```
 
@@ -36,36 +38,57 @@ EmployeeManagementSystem/
 | Tool | Version |
 |------|---------|
 | Java JDK | 17 or higher |
-| MYSQ JDBC Driver | 3.44.x |
-| slf4j-api | 1.7.x |
-| slf4j-nop | 1.7.x |
+| MySQL Server | 8.0 or higher |
+| MySQL JDBC Driver | 9.7.0 (included) |
+| slf4j-api | 1.7.32 (included) |
+| slf4j-nop | 1.7.32 (included) |
+
+---
+
+## 🛢️ MySQL Setup
+
+1. Install and start MySQL Server
+2. Open MySQL Workbench or terminal and run:
+```sql
+CREATE DATABASE employeedb;
+```
+3. Open `src/util/DBConnection.java` and update your password:
+```java
+private static final String PASSWORD = "your_mysql_password";
+```
 
 ---
 
 ## 🚀 How to Run
 
-### Linux / macOS
+### ▶️ IntelliJ IDEA
+1. **File → Open** → select this project folder
+2. IntelliJ auto-detects all JARs via `.iml` file
+3. Click the green **Run** button ✅
+
+### ▶️ Eclipse
+1. **File → Open Projects from File System** → select this folder
+2. Eclipse auto-detects all JARs via `.classpath` file
+3. Right-click `Main.java` → **Run As → Java Application** ✅
+
+### ▶️ Windows (Command Line)
+```bat
+run.bat
+```
+
+### ▶️ Linux / macOS
 ```bash
 chmod +x run.sh
 ./run.sh
 ```
 
-### Windows
-```bat
-run.bat
-```
-
-### Manual Compile + Run
+### ▶️ Manual Compile + Run
 ```bash
 # Compile
-javac -cp "lib/sqlite-jdbc-3.44.1.0.jar" \
-      -sourcepath src \
-      -d out \
-      $(find src -name "*.java")
+javac -cp ".;mysql-connector-j-9.7.0.jar;slf4j-api-1.7.32.jar;slf4j-nop-1.7.32.jar" -sourcepath src -d out src/Main.java src/model/*.java src/util/*.java src/dao/*.java src/ui/*.java
 
 # Run
-java -cp "out:lib/sqlite-jdbc-3.44.1.0.jar:lib/slf4j-api-1.7.32.jar:lib/slf4j-nop-1.7.32.jar" \
-     Main
+java -cp "out;mysql-connector-j-9.7.0.jar;slf4j-api-1.7.32.jar;slf4j-nop-1.7.32.jar" Main
 ```
 
 ---
@@ -73,24 +96,24 @@ java -cp "out:lib/sqlite-jdbc-3.44.1.0.jar:lib/slf4j-api-1.7.32.jar:lib/slf4j-no
 ## 🏗️ Database Schema
 
 ### `employees` table
-| Column     | Type    | Notes              |
-|------------|---------|--------------------|
-| emp_id     | INTEGER | PK, Auto-increment |
-| first_name | TEXT    | NOT NULL           |
-| last_name  | TEXT    | NOT NULL           |
-| email      | TEXT    | UNIQUE             |
-| phone      | TEXT    |                    |
-| hire_date  | TEXT    | YYYY-MM-DD format  |
-| job_title  | TEXT    | NOT NULL           |
-| salary     | REAL    | NOT NULL           |
-| dept_id    | INTEGER | FK → departments   |
+| Column     | Type        | Notes              |
+|------------|-------------|---------------------|
+| emp_id     | INT         | PK, Auto-increment |
+| first_name | VARCHAR(50) | NOT NULL           |
+| last_name  | VARCHAR(50) | NOT NULL           |
+| email      | VARCHAR(100)| UNIQUE             |
+| phone      | VARCHAR(20) |                    |
+| hire_date  | DATE        | YYYY-MM-DD format  |
+| job_title  | VARCHAR(100)| NOT NULL           |
+| salary     | DOUBLE      | NOT NULL           |
+| dept_id    | INT         | FK → departments   |
 
 ### `departments` table
-| Column    | Type    | Notes              |
-|-----------|---------|--------------------|
-| dept_id   | INTEGER | PK, Auto-increment |
-| dept_name | TEXT    | UNIQUE, NOT NULL   |
-| location  | TEXT    | NOT NULL           |
+| Column    | Type         | Notes            |
+|-----------|--------------|------------------|
+| dept_id   | INT          | PK, Auto-increment |
+| dept_name | VARCHAR(100) | UNIQUE, NOT NULL |
+| location  | VARCHAR(100) | NOT NULL         |
 
 ---
 
@@ -132,7 +155,7 @@ java -cp "out:lib/sqlite-jdbc-3.44.1.0.jar:lib/slf4j-api-1.7.32.jar:lib/slf4j-no
 
 ---
 
-## 📌 Sample Data (Auto-seeded)
+## 📌 Sample Data (Auto-seeded on first run)
 
 | Name | Job Title | Department |
 |------|-----------|------------|
